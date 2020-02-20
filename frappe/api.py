@@ -184,3 +184,35 @@ def validate_api_key_secret(api_key, api_secret):
 	if api_secret == user_secret:
 		frappe.set_user(user)
 		frappe.local.form_dict = form_dict
+
+
+
+
+@frappe.whitelist()
+def api_p():
+	return frappe.db.sql('''
+		SELECT COUNT(*) AS count FROM  `tabEmployee applications`
+		''',as_dict=1)
+
+
+
+
+@frappe.whitelist(allow_guest=True)
+def contract_api(*args ,**kwargs) :
+	print(kwargs)
+	doc = frappe.new_doc("Employee contract")
+	doc.naming_series = naming_series
+	doc.contract_number=contract_number
+	doc.employee = employee
+	doc.company= company
+	doc.date_of_agreement=date_of_agreement
+	doc.data_7=data_7
+	doc.contract_start_date=contract_start_date
+	doc.contract_end_date=contract_end_date
+	doc.save()
+	frappe.db.commit()
+	return doc.name
+
+
+
+

@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import datetime
-
+import json
 from frappe import _
 import frappe
 import frappe.database
@@ -416,3 +416,60 @@ def validate_ip_address(user):
 			return
 
 	frappe.throw(_("Access not allowed from this IP Address"), frappe.AuthenticationError)
+
+
+
+@frappe.whitelist()
+def get_employee_name(*args ,**kwargs):
+	number =kwargs['number']
+	print(number)
+	data =  frappe.db.sql('''
+		SELECT name AS name , employee_name AS employee_name FROM  `tabEmployee` WHERE employee_id =(%s)
+		'''%number,as_dict=1)
+	return (data )
+
+
+@frappe.whitelist()
+def contract_api(*args ,**kwargs) :
+	print(kwargs['contract_number'])
+	doc = frappe.new_doc("Employee contract")
+	doc.naming_series = "EMP-CON.-"
+	doc.employee_full_name =  kwargs['employee_full_name']
+	print("wprd")
+	doc.statuss= "Active"
+	doc.contract_number=kwargs['contract_number']
+	print("w2")
+	doc.employee = kwargs['employee']
+	doc.company= "ALGOON"
+	print("FG")
+	d_g = datetime.datetime.strptime(kwargs['date_of_agreement'], "%Y-%m-%d" )
+	# print(d_g.date())
+	doc.date_of_agreement=d_g.date()
+	print("here")
+	doc.data_7=kwargs['data_7']
+
+	doc.contract_start_date=kwargs['contract_start_date']
+
+	doc.contratc_end_date=kwargs['contratc_end_date']
+
+	erning = kwargs["ee"]
+	print(json.loads(erning))
+
+	hi = json.loads(erning)
+	for i in hi :
+		print(i["sc"])
+		doc.append("earnings" ,{
+
+			"salary_component":i["sc"] ,
+			"amount" : i["amount"]
+			})
+	doc.insert(ignore_permissions=True)
+	#print("end")
+	doc.save(ignore_permissions=True)
+	#print("saces")
+	frappe.db.commit()
+	return "work"
+
+
+
+
